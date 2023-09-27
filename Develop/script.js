@@ -1,97 +1,74 @@
 // data for the date in the header
 
-
-//const formatDate = (date) => {
-  // Get the individual date components
- // var day = date.getDate(); // get the Date part
- // var month = date.getMonth() + 1; // Get the Month (Months are zero-based)
- // var year = date.getFullYear(); // Get the year
- // var hours = date.getHours(); // Get the hour
- // var minutes = date.getMinutes(); // Get the minutes
- // var seconds = date.getSeconds(); // Get the seconds
-  
-  // Pad single digits with leading zeros to make 2 digits, 
-  //var formattedDay = day < 10 ? "0" + day : day;
- // var formattedMonth = month < 10 ? "0" + month : month;
- // var formattedDay = day < 10 ? "0" + day : day;
-
-  // Concatenate (join) the formatted date components
- // return formattedMonth + "/" + formattedDay + "/" + year;
-//}
-
-// Usage
-//var currentDate = new Date();
-//var formatted = formatDate(currentDate);
-//console.log(formatted); // Output: "07/16/2023"
-
-
-
 var time = dayjs();
 // setting current date on the site to the current date from moment.js
-$("#currentDay").text(time.format("dddd, MMMM DD, YYYY"));
+$("#currentDay").text(time.format("dddd, MMMM DD, YYYY   | HH:mm"));
+
+  
+  //   setTimeout(updateEventClasses, 60000);
+
+    
+ // Wrap all code that interacts with the DOM in a call to jQuery to ensure that
+  // the code isn't run until the browser has finished rendering all the elements
+  // in the html.
+  
+  // Wait until the DOM is fully loaded before executing the code inside the function.
+  $(function () {
 
 
+//  set current time
+       const currentHour = dayjs().format('H');
 
+//set the background color for the hour - past, present, future  
+    function hourlyColor() {
+      $('.time-block').each(function() {
+        const blockHour = parseInt(this.id);
+        $(this).toggleClass('past', blockHour < currentHour);
+        $(this).toggleClass('present', blockHour === currentHour);
+        $(this).toggleClass('future', blockHour > currentHour);
+      });
+    }
 
-
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
-$(function () {
-  // TODO: Add a listener for click events on the save button. This code should
-  // use the id in the containing time-block as a key to save the user input in
-  // local storage. HINT: What does `this` reference in the click listener
-  // function? How can DOM traversal be used to get the "hour-x" id of the
-  // time-block containing the button that was clicked? How might the id be
-  // useful when saving the description in local storage?
-  //
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
-  //
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
-  // TODO: Add code to display the current date in the header of the page.
-});
-
-var myDay = [
-  {
-    id: "0",
-    hour: "08",
-    time: "08",
-    meridiem: "am",
-    reminder: ""
-
-  },
-
-  {
-    id: "1",
-    hour: "09",
-    time: "09",
-    meridiem: "am",
-    reminder: ""
-
-  },
-
-  {
-    id: "2",
-    hour: "10",
-    time: "10",
-    meridiem: "am",
-    reminder: ""
-
-  },
-
-  {
-    id: "3",
-    hour: "11",
-    time: "11",
-    meridiem: "am",
-    reminder: ""
-
-  },
-]
+//set the time slot to receive text and information
+    function textEntry() {
+      $('.saveBtn').on('click', function() {
+        const key = $(this).parent().attr('id');
+        const value = $(this).siblings('.description').val();
+        localStorage.setItem(key, value);
+      });
+    }
+//se the color to refresh when the hour changes   
+    function refreshColor() {
+      $('.time-block').each(function() {
+        const blockHour = parseInt(this.id);
+        if (blockHour == currentHour) {
+          $(this).removeClass('past future').addClass('present');
+        } else if (blockHour < currentHour) {
+          $(this).removeClass('future present').addClass('past');
+        } else {
+          $(this).removeClass('past present').addClass('future');
+        }
+      });
+    }
+// set the text to local storage when the lock button is clicked    
+    $('.time-block').each(function() {
+      const key = $(this).attr('id');
+      const value = localStorage.getItem(key);
+      $(this).children('.description').val(value);
+    });
+  
+// update the time using day.js  
+    function updateTime() {
+      const dateElement = $('#date');
+      const timeElement = $('#time');
+      const currentDate = dayjs().format('dddd, MMMM D, YYYY');
+      const currentTime = dayjs().format('hh:mm:ss A');
+      dateElement.text(currentDate);
+      timeElement.text(currentTime);
+    }
+// three main functions    
+    hourlyColor();
+    textEntry();                
+    refreshColor();
+    
+  })
